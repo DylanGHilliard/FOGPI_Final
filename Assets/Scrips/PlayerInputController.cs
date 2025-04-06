@@ -9,6 +9,7 @@ public class PlayerInputController : MonoBehaviour
     void Start()
     {
      currentInput = new PlayerInput();
+     
     }
 
     // Update is called once per frame
@@ -17,6 +18,10 @@ public class PlayerInputController : MonoBehaviour
         Vector3 move = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
         Vector2 mousePos = Input.mousePosition;
         Vector2 mouse = Camera.main.ScreenToWorldPoint(mousePos);
+        currentInput.moveInput = move;
+        currentInput.mouseInput = new Vector2(mouse.x, mouse.y);
+        currentInput.jumpInput = Input.GetButtonDown("Jump");
+        Debug.Log(currentInput.moveInput);
 
 
     }
@@ -24,6 +29,6 @@ public class PlayerInputController : MonoBehaviour
 
 public struct PlayerInput {
     public Vector3 moveInput;
-    public Vector3 mouseInput;
+    public Vector2 mouseInput;
     public bool jumpInput;
 }
