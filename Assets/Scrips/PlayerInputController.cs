@@ -21,7 +21,8 @@ public class PlayerInputController : MonoBehaviour
         currentInput.moveInput = move;
         currentInput.mouseInput = new Vector2(mouse.x, mouse.y);
         currentInput.jumpInput = Input.GetButtonDown("Jump");
-        Debug.Log(currentInput.moveInput);
+        currentInput.sprintInput = Keyboard.current.leftShiftKey.isPressed;
+       // Debug.Log(currentInput.moveInput);
 
 
     }
@@ -31,4 +32,5 @@ public struct PlayerInput {
     public Vector3 moveInput;
     public Vector2 mouseInput;
     public bool jumpInput;
+    public bool sprintInput;
 }
