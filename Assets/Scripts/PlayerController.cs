@@ -14,13 +14,14 @@ public class PlayerController : MonoBehaviour
     public float sprintSpeed = 0f;
 [Tooltip("Enables Ability To Sprint/Run")]
     public bool canSprint = false;
-    public float gravity = 4.0f;
+ 
 
     private Vector3 velocity;
 
     [Header("Player Jump Variables")]
     public float jumpForce = 0;
     public bool isGrounded;
+    public float gravity = 4.0f;
 
     [Header("Slope Options")]
     [Tooltip("The angle at which the player can walk up a slope")]
@@ -60,11 +61,11 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        //Gravity();
+        Gravity();
         FirstMovement();
         Jump();
-        GroundCheck();
         FinalMovement();
+        GroundCheck();
     }
 
     private void FirstMovement()
@@ -85,6 +86,7 @@ public class PlayerController : MonoBehaviour
             vel = new Vector3(velocity.x, velocity.y, velocity.z)* walkSpeed;
         }
         
+        vel = transform.TransformDirection(vel);
 
         transform.position += vel * Time.deltaTime;
         velocity = Vector3.zero;
@@ -97,7 +99,9 @@ public class PlayerController : MonoBehaviour
 
     private void Gravity(){
         if (!isGrounded){
-            velocity.y -= gravity;
+            if (velocity.y < gravity*4){
+                velocity.y -= gravity/20;
+            }
         }
     }
 
@@ -109,13 +113,13 @@ public class PlayerController : MonoBehaviour
     }
 
     private void GroundCheck(){
-        Ray ray = new Ray(transform.position, Vector3.down);
-
-        RaycastHit tempHit = new RaycastHit();
-        if (Physics.SphereCast(ray, playerRadius, out tempHit, playerHeight*2, discludePlayer)){
-            groundHit = tempHit;
+       RaycastHit hit;
+        Debug.DrawRay(transform.position, Vector3.down * playerHeight, Color.red);
+        if(Physics.Raycast(transform.position, Vector3.down, out hit, (playerHeight/2) + 0.1f, ~discludePlayer))
+        {
             isGrounded = true;
-            currentGroundSlope = Vector3.Angle(Vector3.up, groundHit.normal);
+            currentGroundSlope = Vector3.Angle(hit.normal, Vector3.up);
+            Debug.Log("Hit Ground");
         }
         else
         {

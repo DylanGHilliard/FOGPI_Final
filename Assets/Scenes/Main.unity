@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 49989774}
   - component: {fileID: 49989773}
   - component: {fileID: 49989772}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Terrain
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -227,6 +227,7 @@ GameObject:
   - component: {fileID: 924532523}
   - component: {fileID: 924532522}
   - component: {fileID: 924532528}
+  - component: {fileID: 924532529}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -266,9 +267,9 @@ MonoBehaviour:
   walkSpeed: 10
   sprintSpeed: 20
   canSprint: 1
-  gravity: 4
   jumpForce: 10
   isGrounded: 0
+  gravity: 1
   maxSlopeAngle: 45
   playerCamera: {fileID: 1638905123}
   lookSpeed: 4
@@ -359,7 +360,7 @@ Transform:
   m_GameObject: {fileID: 924532521}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 184.70216, y: 1.56, z: 161.20514}
+  m_LocalPosition: {x: 184.70216, y: 1.88, z: 161.20514}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -379,6 +380,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   score: 0
+--- !u!54 &924532529
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 924532521}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1405811405
 GameObject:
   m_ObjectHideFlags: 0
