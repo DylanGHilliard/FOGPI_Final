@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
     
-
+namespace KinematicCharacterController{
 public class PlayerInputController : MonoBehaviour
 {
-    public PlayerInput currentInput;
+    public static PlayerInput currentInput;
     void Start()
     {
      currentInput = new PlayerInput();
@@ -33,4 +33,6 @@ public struct PlayerInput {
     public Vector2 mouseInput;
     public bool jumpInput;
     public bool sprintInput;
+}
+
 }
