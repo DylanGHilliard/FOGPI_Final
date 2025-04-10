@@ -38,10 +38,13 @@ public class PlayerController : MonoBehaviour
     // Grounding Variables
     private RaycastHit groundHit;
     private float currentGroundSlope;
+    [Tooltip("Sets the distance off the ground the player snaps onto the ground")]
+    public float snapDistance = 0.1f;
     
     private float rotationX;
 
     private Rigidbody rigidBody;
+    public LayerMask groundLayer;
 
     
 
@@ -90,6 +93,7 @@ public class PlayerController : MonoBehaviour
 
         rigidBody.MovePosition(transform.position + (vel * Time.deltaTime));
         velocity = Vector3.zero;
+        SnapeToGround();
 
          rotationX += playerCamera.transform.localEulerAngles.y + Input.GetAxisRaw("Mouse Y") * lookSpeed;
                 rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
@@ -101,6 +105,7 @@ public class PlayerController : MonoBehaviour
         if (!isGrounded){
             if (velocity.y < gravity*4){
                 velocity.y -= gravity/20;
+
             }
         }
     }
@@ -114,7 +119,7 @@ public class PlayerController : MonoBehaviour
 
     private void GroundCheck(){
        RaycastHit hit;
-        Debug.DrawRay(transform.position, Vector3.down * playerHeight, Color.red);
+     
         if(Physics.Raycast(transform.position, Vector3.down, out hit, (playerHeight/2) + 0.1f, ~discludePlayer))
         {
             isGrounded = true;
@@ -124,6 +129,15 @@ public class PlayerController : MonoBehaviour
         else
         {
             isGrounded = false;
+        }
+    }
+
+    private void SnapeToGround(){
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, snapDistance, groundLayer))
+    
+        {
+            Vector3 targetPosition = new Vector3(rigidBody.position.x, hit.point.y + 0.1f, rigidBody.position.z);
+            rigidBody.MovePosition(targetPosition);
         }
     }
 
