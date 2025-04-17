@@ -78,10 +78,13 @@ public class PlayerController : MonoBehaviour
 
 
     private void Movement(){
+        if(isGrounded){
 
         velocity += Vector3.ProjectOnPlane(transform.TransformDirection(PlayerInputController.currentInput.moveInput), groundHit.normal);
-        //velocity += new Vector3(PlayerInputController.currentInput.moveInput.x, 0, PlayerInputController.currentInput.moveInput.z);
-
+        }
+        else{
+            velocity += new Vector3(PlayerInputController.currentInput.moveInput.x, 0, PlayerInputController.currentInput.moveInput.z);
+        }
         Vector3 vel = new Vector3();
 
       
@@ -93,9 +96,11 @@ public class PlayerController : MonoBehaviour
         {
             vel = new Vector3(velocity.x, velocity.y, velocity.z)* walkSpeed;
         }
+        RaycastHit _hit;
+        Physics.Raycast(transform.position, vel.normalized, out _hit, vel.magnitude, ~discludePlayer);
         
        // vel = transform.TransformDirection(vel);
-
+        vel = Vector3.ProjectOnPlane(vel, _hit.normal);
         rigidBody.MovePosition(transform.position + (vel * Time.deltaTime));
         velocity = Vector3.zero;
         SnapeToGround();
