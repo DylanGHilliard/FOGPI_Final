@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 namespace KinematicCharacterController{
@@ -45,6 +46,7 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody rigidBody;
     public LayerMask groundLayer;
+    public Vector3 groundNormal;
 
     
 
@@ -67,8 +69,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        //Gravity();
-        //Jump();
+        Gravity();
+        Jump();
         Movement();
         GroundCheck();
     }
@@ -76,9 +78,12 @@ public class PlayerController : MonoBehaviour
 
 
     private void Movement(){
-        velocity += new Vector3(PlayerInputController.currentInput.moveInput.x, 0, PlayerInputController.currentInput.moveInput.z);
+
+        velocity += Vector3.ProjectOnPlane(transform.TransformDirection(PlayerInputController.currentInput.moveInput), groundHit.normal);
+        //velocity += new Vector3(PlayerInputController.currentInput.moveInput.x, 0, PlayerInputController.currentInput.moveInput.z);
 
         Vector3 vel = new Vector3();
+
       
         if (PlayerInputController.currentInput.sprintInput && canSprint)
         {
@@ -89,7 +94,7 @@ public class PlayerController : MonoBehaviour
             vel = new Vector3(velocity.x, velocity.y, velocity.z)* walkSpeed;
         }
         
-        vel = transform.TransformDirection(vel);
+       // vel = transform.TransformDirection(vel);
 
         rigidBody.MovePosition(transform.position + (vel * Time.deltaTime));
         velocity = Vector3.zero;
@@ -118,13 +123,14 @@ public class PlayerController : MonoBehaviour
     }
 
     private void GroundCheck(){
-       RaycastHit hit;
+       RaycastHit _hit;
      
-        if(Physics.Raycast(transform.position, Vector3.down, out hit, (playerHeight/2) + 0.1f, ~discludePlayer))
+        if(Physics.Raycast(transform.position, Vector3.down, out _hit, (playerHeight/2) + 0.1f, ~discludePlayer))
         {
             isGrounded = true;
-            currentGroundSlope = Vector3.Angle(hit.normal, Vector3.up);
-            
+            currentGroundSlope = Vector3.Angle(_hit.normal, Vector3.up);
+            groundHit = _hit;
+            groundNormal = _hit.normal;
         }
         else
         {
