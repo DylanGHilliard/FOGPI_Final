@@ -53,10 +53,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float terminalVelocity = -20.0f;
     private Vector3 verticalVelocity;
 
-    private Vector3 lastGroundedPosition;
     private float currentStepOffset;
-    private Vector3 currentVelocity;
-    private Vector3 targetVelocity;
+ 
     private int maxIterations = 10;
     public LayerMask collisionLayers;
 
@@ -86,7 +84,7 @@ public class PlayerController : MonoBehaviour
     void Move(Vector3 moveInput, float deltaTime)
     {
         Vector3 targetPosition = transform.position;
-        Vector3 movement = transform.TransformDirection(moveInput) * moveSpeed * deltaTime;
+        Vector3 movement = moveInput *moveSpeed * deltaTime;
 
         if (groundingStatus.onGround)
         {
@@ -97,7 +95,11 @@ public class PlayerController : MonoBehaviour
             verticalVelocity.y -= gravity * deltaTime;
             verticalVelocity.y = Mathf.Max(verticalVelocity.y, terminalVelocity);
         }
+
+        
         movement.y += verticalVelocity.y * deltaTime;
+        movement = transform.TransformDirection(movement);
+       
 
         
         if (movement.magnitude > 0)

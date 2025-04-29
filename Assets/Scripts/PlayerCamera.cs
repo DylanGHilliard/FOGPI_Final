@@ -18,7 +18,7 @@ public class PlayerCamera : MonoBehaviour
         }
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        playerCamera.gameObject.transform.rotation = player.transform.rotation;
+        playerCamera.gameObject.transform.localEulerAngles = player.transform.localEulerAngles;
     }
 
     // Update is called once per frame
