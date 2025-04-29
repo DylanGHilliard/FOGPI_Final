@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     public float MaxStableSlopeAngle = 60f;
     [Tooltip("Maximum height of a step which the character can climb")]
     public float MaxStepHeight = 0.5f;
+    [SerializeField] private LayerMask groundLayer;
     
     [HideInInspector]
     public CharacterGroundingReport groundingStatus = new CharacterGroundingReport();
@@ -40,7 +41,6 @@ public class PlayerController : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float groundCheckDistance = 0.1f;
-    [SerializeField] private LayerMask groundLayer;
 
     [Header("Terrain Handling")]
     [SerializeField] private float stepCheckDistance = 0.3f;
@@ -121,11 +121,11 @@ public class PlayerController : MonoBehaviour
 
      private void HandleMovement(ref Vector3 movement)
     {
-        int iterations = 0;
+       
         float remainingDistance = movement.magnitude;
         Vector3 direction = movement.normalized;
 
-        while (remainingDistance > 0 && iterations < maxIterations)
+        while (remainingDistance > 0)
         {
             // Check for collisions
             RaycastHit hit;
@@ -149,7 +149,7 @@ public class PlayerController : MonoBehaviour
                 remainingDistance = 0;
             }
 
-            iterations++;
+            
         }
     }
 
@@ -162,8 +162,7 @@ public class PlayerController : MonoBehaviour
             distance, collisionLayers, QueryTriggerInteraction.Ignore);
     }
 
-        // Apply downward force when in air or moving down slopes
-
+    // logic not correct for CheckForStep()
     private bool CheckForStep(Vector3 moveDirection)
     {
         RaycastHit hitLow, hitHigh;
