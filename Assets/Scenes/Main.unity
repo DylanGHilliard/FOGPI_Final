@@ -263,20 +263,22 @@ MonoBehaviour:
   capsule: {fileID: 0}
   CapsuleRadius: 0.5
   CapsuleHeight: 2
-  CapsuleYOffset: 1
   MaxStableSlopeAngle: 60
   MaxStepHeight: 0.5
-  moveSpeed: 5
-  rotationSpeed: 720
-  groundCheckDistance: 0.1
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
+  moveSpeed: 5
+  groundCheckDistance: 0.1
   stepCheckDistance: 0.3
   stepSmoothingIterations: 3
-  slopeUpwardForce: 8
-  downwardForce: 20
   groundedOffset: 0.1
+  gravity: 5
+  jumpForce: 5
+  terminalVelocity: -20
+  collisionLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!136 &924532524
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -365,7 +367,8 @@ Transform:
   m_LocalPosition: {x: 184.70216, y: 1.88, z: 161.20514}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1638905124}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &924532528
@@ -421,7 +424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 1638905123}
-  lookSpeed: 2
+  lookSpeed: 700
 --- !u!1 &1405811405
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,11 +633,11 @@ Transform:
   m_GameObject: {fileID: 1638905121}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 184.70216, y: 1.88, z: 161.20514}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 924532527}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1638905125
 MonoBehaviour:
@@ -837,4 +840,3 @@ SceneRoots:
   - {fileID: 49989774}
   - {fileID: 924532527}
   - {fileID: 2124768020}
-  - {fileID: 1638905124}
