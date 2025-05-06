@@ -134,7 +134,7 @@ public class PlayerController : MonoBehaviour
         }
 
         
-        movement.y += verticalVelocity.y * deltaTime;
+        movement.y += verticalVelocity.y;
         //movement = transform.TransformDirection(movement);
        
 
@@ -147,6 +147,7 @@ public class PlayerController : MonoBehaviour
             HandleMovement(ref movement);
 
             // Apply final movement
+            
             targetPosition += movement;
         }
         transform.position = targetPosition;
@@ -175,11 +176,11 @@ public class PlayerController : MonoBehaviour
             if (CapsuleCast(direction, remainingDistance, out hit))
             {
              
-                float hitDistance = hit.distance;
-                remainingDistance -= hitDistance;
+                //float hitDistance = hit.distance;
+                remainingDistance -= hit.distance;
 
                 // Move up to the hit point
-                movement = direction * hitDistance;
+                movement = direction * (remainingDistance * 0.9f);
 
                 // Calculate sliding direction
                 Vector3 slide = Vector3.ProjectOnPlane(direction, hit.normal).normalized;
