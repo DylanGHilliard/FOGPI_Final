@@ -2,6 +2,8 @@
 using UnityEngine;
 
 namespace KinematicCharacterController{
+
+    [System.Serializable]
     public struct CharacterGroundingReport
     {
         public bool foundAnyGround;
@@ -44,7 +46,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("Terrain Handling")]
     [SerializeField] private float stepCheckDistance = 0.3f;
-    [SerializeField] private int stepSmoothingIterations = 3;
     [SerializeField] private float groundedOffset = 0.1f;
 
     [Header("Gravity Settings")]
@@ -54,9 +55,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 verticalVelocity;
 
     private float currentStepOffset;
- 
-    private int maxIterations = 10;
+
     public LayerMask collisionLayers;
+    public bool isGrounded;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -79,26 +80,30 @@ public class PlayerController : MonoBehaviour
         CheckGrounding();
         Vector3 inputDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
         Move(inputDirection, Time.deltaTime);
+        isGrounded = groundingStatus.onGround;
     }
     
     void Move(Vector3 moveInput, float deltaTime)
     {
         Vector3 targetPosition = transform.position;
-        Vector3 movement = moveInput *moveSpeed * deltaTime;
+        Vector3 movement = transform.TransformDirection((moveInput *moveSpeed) * deltaTime);
 
         if (groundingStatus.onGround)
         {
-            verticalVelocity.y = 0f;
+            // Project movement onto ground plane
+            //Vector3 groundedMovement = Vector3.ProjectOnPlane(movement, groundingStatus.groundNormal);
+            //movement = groundedMovement;
+            verticalVelocity = Vector3.zero;
         }
         else
         {
             verticalVelocity.y -= gravity * deltaTime;
-            verticalVelocity.y = Mathf.Max(verticalVelocity.y, terminalVelocity);
+            verticalVelocity.y = Mathf.Clamp(verticalVelocity.y, terminalVelocity, 0.0f);
         }
 
         
         movement.y += verticalVelocity.y * deltaTime;
-        movement = transform.TransformDirection(movement);
+        //movement = transform.TransformDirection(movement);
        
 
         
@@ -114,6 +119,7 @@ public class PlayerController : MonoBehaviour
             targetPosition += movement;
         }
         transform.position = targetPosition;
+        //HandleGroundSnapping();
     }
 
 
@@ -147,6 +153,7 @@ public class PlayerController : MonoBehaviour
                 // No collision, move the full remaining distance
                 movement = direction * remainingDistance;
                 remainingDistance = 0;
+            
             }
 
             
@@ -155,11 +162,11 @@ public class PlayerController : MonoBehaviour
 
     private bool CapsuleCast(Vector3 direction, float distance, out RaycastHit hit)
     {
-        Vector3 p1 = transform.position + capsule.center + Vector3.up * (CapsuleHeight * 0.5f - CapsuleRadius);
-        Vector3 p2 = transform.position + capsule.center + Vector3.down * (CapsuleHeight * 0.5f - CapsuleRadius);
+        Vector3 p1 = transform.position +  Vector3.up * (CapsuleHeight * 0.5f);
+        Vector3 p2 = transform.position - Vector3.up * (CapsuleHeight * 0.5f);
 
         return Physics.CapsuleCast(p1, p2, CapsuleRadius, direction, out hit, 
-            distance, collisionLayers, QueryTriggerInteraction.Ignore);
+                                distance, collisionLayers, QueryTriggerInteraction.Ignore);
     }
 
     // logic not correct for CheckForStep()
@@ -170,6 +177,7 @@ public class PlayerController : MonoBehaviour
         Vector3 rayStartHigh = transform.position + Vector3.up * MaxStepHeight;
 
         // Check if there's an obstacle at foot level
+
         if (Physics.Raycast(rayStart, moveDirection, out hitLow, stepCheckDistance))
         {
             // Check if there's space above the obstacle
@@ -184,26 +192,25 @@ public class PlayerController : MonoBehaviour
         currentStepOffset = 0f;
         return false;
     }
-
    
 
      private void CheckGrounding()
     {
-        Vector3 capsuleBottom = transform.position + Vector3.up * (CapsuleRadius);
-        Vector3 capsuleTop = transform.position + Vector3.up * (CapsuleHeight - CapsuleRadius);
+        Vector3 capsuleBottom = transform.position - Vector3.up * (CapsuleHeight * 0.5f);
+        Vector3 capsuleTop = transform.position + Vector3.up * (CapsuleHeight * 0.5f);
 
         RaycastHit hit;
-        groundingStatus.foundAnyGround = Physics.CapsuleCast(
-            capsuleBottom, capsuleTop, CapsuleRadius,
-            Vector3.down, out hit, groundCheckDistance, groundLayer
-        );
+        Debug.DrawRay(capsuleBottom, Vector3.down * groundCheckDistance, Color.red);
+        groundingStatus.foundAnyGround = Physics.Raycast(capsuleBottom, Vector3.down, out hit,
+            groundCheckDistance, groundLayer, QueryTriggerInteraction.Ignore);
+    
 
         if (groundingStatus.foundAnyGround)
         {
             groundingStatus.groundNormal = hit.normal;
             groundingStatus.groundPoint = hit.point;
             groundingStatus.groundCollider = hit.collider;
-            groundingStatus.onGround = Vector3.Angle(Vector3.up, hit.normal) <= MaxStableSlopeAngle;
+            groundingStatus.onGround = true;;
         }
         else
         {
@@ -216,15 +223,9 @@ public class PlayerController : MonoBehaviour
         if (!groundingStatus.onGround || groundingStatus.snappingPrevented)
             return;
 
-        float distanceToGround = Vector3.Distance(transform.position, groundingStatus.groundPoint);
-        if (distanceToGround > groundCheckDistance)
-        {
-            transform.position = Vector3.Lerp(
-                transform.position,
-                groundingStatus.groundPoint + Vector3.up * CapsuleRadius,
-                Time.deltaTime * 15f
-            );
-        }
+        Vector3 capsuleBottom = transform.position - Vector3.up * (CapsuleHeight * 0.5f);
+
+      
     }
 
 
