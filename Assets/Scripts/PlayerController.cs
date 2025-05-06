@@ -226,9 +226,9 @@ public class PlayerController : MonoBehaviour
         if (!Physics.Raycast(rayStartHigh, moveDirection, out hitHigh, capsule.radius + 1, collisionLayers))
         {
 
-                transform.position = new Vector3(transform.position.x, 
+                transform.position = new Vector3(transform.position.x + moveDirection.x, 
                                                 transform.position.y + maxStepHeight,
-                                                transform.position.z);
+                                                transform.position.z + moveDirection.z);
                 return true;
             
         }
