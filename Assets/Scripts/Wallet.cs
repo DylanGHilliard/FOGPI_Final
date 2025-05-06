@@ -13,7 +13,7 @@ public class Wallet : MonoBehaviour
 
     void Update()
     {
-        if (score > winScore){
+        if (score >= winScore){
             unityEvent.Invoke();
         }
     }
