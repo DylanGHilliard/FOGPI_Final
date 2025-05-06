@@ -5,7 +5,6 @@ using UnityEditor.EditorTools;
 
 namespace KinematicCharacterController{
 
-    [System.Serializable]
     public struct CharacterGroundingReport
     {
         public bool foundAnyGround;
@@ -115,7 +114,9 @@ public class PlayerController : MonoBehaviour
             {
                 isJumping = false;
                 time = 0;
+                groundingStatus.snappingPrevented = false;
             }
+            
         }
 
         if (groundingStatus.onGround)
@@ -141,7 +142,6 @@ public class PlayerController : MonoBehaviour
         if (movement.magnitude > 0)
         {
             // Check ground state
-            CheckGrounding();
 
             // Handle movement collisions
             HandleMovement(ref movement);
@@ -167,12 +167,10 @@ public class PlayerController : MonoBehaviour
             // Check for collisions
             RaycastHit hit;
 
-             if (CheckForStep(direction))
-        {
-            // If we stepped up, continue movement from new position
-            movement = direction * remainingDistance;
-            break;
-        }
+             if (CheckForStep(direction, ref movement))
+            {
+                break;
+            }
 
             if (CapsuleCast(direction, remainingDistance, out hit))
             {
@@ -207,7 +205,7 @@ public class PlayerController : MonoBehaviour
                                 distance, collisionLayers, QueryTriggerInteraction.Ignore);
     }
 
-    private bool CheckForStep(Vector3 moveDirection)
+    private bool CheckForStep(Vector3 moveDirection, ref Vector3 movement)
     {
         RaycastHit hitLow, hitHigh;
         // exit if not grounded or jumping
@@ -224,14 +222,10 @@ public class PlayerController : MonoBehaviour
     // Check for obstacle at foot level
     if (Physics.Raycast(rayStart, moveDirection, out hitLow, capsule.radius + 1, collisionLayers))
     {
-        // Check if there's space above the obstacle
+        // check at max step height
         if (!Physics.Raycast(rayStartHigh, moveDirection, out hitHigh, capsule.radius + 1, collisionLayers))
         {
-            // Verify step height is within limits
-    
-        
-            
-                // Step up
+
                 transform.position = new Vector3(transform.position.x, 
                                                 transform.position.y + maxStepHeight,
                                                 transform.position.z);
@@ -262,7 +256,7 @@ public class PlayerController : MonoBehaviour
             groundingStatus.groundPoint = hit.point;
             groundingStatus.groundCollider = hit.collider;
             groundingStatus.onGround = true;
-            if (transform.position.y-(CapsuleHeight * 0.4f)+ groundedOffset < hit.point.y)
+            if (transform.position.y-(CapsuleHeight * 0.4f)+ groundedOffset < hit.point.y && !groundingStatus.snappingPrevented)
             {
                 transform.position = new Vector3(transform.position.x, hit.point.y + groundedOffset + (CapsuleHeight * 0.4f), transform.position.z);
             }
@@ -281,6 +275,7 @@ public class PlayerController : MonoBehaviour
         verticalVelocity += Vector3.up *jumpForce;
         isJumping = true;
         groundingStatus.onGround = false;
+        groundingStatus.snappingPrevented = true;
 
     }
 
