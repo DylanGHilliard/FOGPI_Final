@@ -2,6 +2,9 @@
 using UnityEngine;
 using System.Collections;
 using UnityEditor.EditorTools;
+using UnityEngine.UIElements;
+
+
 
 namespace KinematicCharacterController{
 
@@ -162,29 +165,30 @@ public class PlayerController : MonoBehaviour
        
         float remainingDistance = movement.magnitude;
         Vector3 direction = movement.normalized;
+        Vector3 position = transform.position;
 
-        while (remainingDistance > 0)
+        while (remainingDistance > 0.0001)
         {
             // Check for collisions
             RaycastHit hit;
 
-             if (CheckForStep(direction, ref movement))
-            {
-                break;
-            }
 
-            if (CapsuleCast(direction, remainingDistance, out hit))
+            if (CapsuleCast(position, direction, remainingDistance, out hit))
             {
-             
+                
+
+                float fraction = hit.distance / remainingDistance;
+
                 //float hitDistance = hit.distance;
-                remainingDistance -= hit.distance;
+
 
                 // Move up to the hit point
-                movement = direction * (remainingDistance * 0.9f);
+                position += (remainingDistance * fraction) * direction;
 
                 // Calculate sliding direction
                 Vector3 slide = Vector3.ProjectOnPlane(direction, hit.normal).normalized;
                 direction = slide;
+                remainingDistance *= (1 - fraction);
             }
             else
             {
@@ -197,12 +201,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private bool CapsuleCast(Vector3 direction, float distance, out RaycastHit hit)
+    private bool CapsuleCast( Vector3 position, Vector3 direction, float distance, out RaycastHit hit)
     {
+
+        Quaternion rot = transform.rotation;
+
+        Vector3 center = rot* capsule.center + position;
+        float radius = CapsuleRadius;
+        float height = CapsuleHeight;
+
+        Vector3 bottom =  center + rot * Vector3.down * (height * 0.5f - radius);
+        Vector3 top = center + rot * Vector3.up * (height * 0.5f - radius);
         Vector3 p1 = transform.position +  Vector3.up * (CapsuleHeight * 0.5f);
         Vector3 p2 = transform.position - Vector3.up * (CapsuleHeight * 0.5f);
 
-        return Physics.CapsuleCast(p1, p2, CapsuleRadius, direction, out hit, 
+        return Physics.CapsuleCast(top, bottom, radius, direction, out hit, 
                                 distance, collisionLayers, QueryTriggerInteraction.Ignore);
     }
 
