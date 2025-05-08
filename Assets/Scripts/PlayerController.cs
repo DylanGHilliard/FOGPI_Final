@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
     public float maxStepHeight = 0.5f;
     [SerializeField] private float groundedOffset = 0.1f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float maxSnapDistance = 0.1f;
     
     [HideInInspector]
     public CharacterGroundingReport groundingStatus = new CharacterGroundingReport();
@@ -108,19 +109,6 @@ public class PlayerController : MonoBehaviour
         {
          movement = transform.TransformDirection((moveInput *walkSpeed) * deltaTime);
         }
-        // Tries to simulate smooth jumping
-        if(isJumping)
-        {
-            time += Time.deltaTime;
-            verticalVelocity.y += jumpForce;
-            if (time > jumpTime)
-            {
-                isJumping = false;
-                time = 0;
-                groundingStatus.snappingPrevented = false;
-            }
-            
-        }
 
         if (groundingStatus.onGround)
         {
@@ -153,6 +141,7 @@ public class PlayerController : MonoBehaviour
             
             targetPosition += movement;
         }
+
         transform.position = targetPosition;
         //HandleGroundSnapping();
     }
@@ -197,7 +186,7 @@ public class PlayerController : MonoBehaviour
                 remainingDistance = 0;
             
             }
-
+            SnapPlayerDown();
         }
     }
 
@@ -206,7 +195,7 @@ public class PlayerController : MonoBehaviour
 
         Quaternion rot = transform.rotation;
 
-        Vector3 center = rot* capsule.center + position;
+        Vector3 center = rot * capsule.center + position;
         float radius = CapsuleRadius;
         float height = CapsuleHeight;
 
@@ -250,6 +239,16 @@ public class PlayerController : MonoBehaviour
 
     return false;
 }
+
+    private void SnapPlayerDown()
+    {
+        bool closeToGround = CapsuleCast(transform.position, Vector3.down, maxSnapDistance, out RaycastHit hit);
+
+        if(closeToGround && hit.distance > 0 && !groundingStatus.snappingPrevented)
+        {
+            transform.position += Vector3.down * (hit.distance - 0.001f);
+        }
+    }
     
    
 
@@ -270,10 +269,6 @@ public class PlayerController : MonoBehaviour
             groundingStatus.groundPoint = hit.point;
             groundingStatus.groundCollider = hit.collider;
             groundingStatus.onGround = true;
-            if (transform.position.y-(CapsuleHeight * 0.4f)+ groundedOffset < hit.point.y && !groundingStatus.snappingPrevented)
-            {
-                transform.position = new Vector3(transform.position.x, hit.point.y + groundedOffset + (CapsuleHeight * 0.4f), transform.position.z);
-            }
             verticalVelocity.y = 0f;
             //transform.position = new Vector3(transform.position.x, hit.point.y + groundedOffset + (CapsuleHeight * 0.5f), transform.position.z);
         }
@@ -287,9 +282,9 @@ public class PlayerController : MonoBehaviour
     private void Jump()
     {
         verticalVelocity += Vector3.up *jumpForce;
-        isJumping = true;
+        isJumping = false;
         groundingStatus.onGround = false;
-        groundingStatus.snappingPrevented = true;
+        groundingStatus.snappingPrevented = false;
 
     }
 
