@@ -61,7 +61,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float gravity = 5.0f;
     [SerializeField] private float terminalVelocity = -20.0f;
 
-    //private IEnumerator Jumping;
+
     private Vector3 verticalVelocity;
 
     private float currentStepOffset;
@@ -72,7 +72,6 @@ public class PlayerController : MonoBehaviour
     private float time;
 
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         capsule = GetComponent<CapsuleCollider>();
@@ -86,8 +85,6 @@ public class PlayerController : MonoBehaviour
             CapsuleHeight = capsule.height;
         }
     }
-
-    // Update is called once per frame
     void Update()
     {
         CheckGrounding();
